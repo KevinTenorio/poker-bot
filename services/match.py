@@ -1,22 +1,15 @@
 from sqlalchemy.orm import Session
 from domain.schemas.match import FirstRoundReceive, FirstRoundResponse, SecondRoundReceive, SecondRoundResponse, ResultReceive
 from repositories import match as match_repository
-import random
+from commons.check_hand import check_hand
 
 
 def first_round(db: Session, data: FirstRoundReceive):
-    bet=random.randint(5, 200)
-    cards_to_swap = []
-    number_of_swaps = random.randint(0, 5)
-    for _ in range(number_of_swaps):
-        card = data.cards[random.randint(0,4)]
-        if card not in cards_to_swap:
-            cards_to_swap.append(card)
+    bet, cards_to_swap = check_hand(data.cards, 1)
     match_repository.post_match(db, data, bet, cards_to_swap)
     return FirstRoundResponse(bet=bet, cardsToSwap=cards_to_swap)
 
 def second_round(db: Session, data: SecondRoundReceive):
-    new_bet=random.randint(5, 200)
     match = match_repository.get_match(db, data.match_id)
     second_hand = []
     for card in match.second_hand:
@@ -24,6 +17,7 @@ def second_round(db: Session, data: SecondRoundReceive):
             second_hand.append(card)
         else:
             second_hand.append(data.new_cards.pop(0))
+    new_bet, _ = check_hand(second_hand, 2)
     new_match = {
         "id": match.id,
         "opponent": match.opponent,
