@@ -1,22 +1,19 @@
 import requests
-from domain.schemas.match import JoinGame
 
-DEALER_URL = 'http://dealer:8000'
+DEALER_URL = 'https://57405e80-d9e0-4eb1-897d-51304945e739.mock.pstmn.io'
 MY_API_URL = 'https://f222-177-37-174-87.ngrok-free.app'
 
-async def post_join_game(data: JoinGame) -> dict:
+def post_join_game(data) -> dict:
     url = DEALER_URL + '/join-game'
     response = requests.post(
         url=url, json=data, timeout=30)
-    print(response.json())
-    return response.json()
+    print(response)
+    return response
 
-my_data = JoinGame(
-    {
+my_data = {
         "id": "kevin.souza@lccv.ufal.br",
         "name": "Kevin Tenório",
         "public_api_url": MY_API_URL
     }
-)
 
 post_join_game(my_data)
